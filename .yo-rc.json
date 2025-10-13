@@ -1,0 +1,28 @@
+{
+  "generator-jhipster": {
+    "applicationType": "monolith",
+    "authenticationType": "jwt",
+    "baseName": "stefikBack",
+    "buildTool": "maven",
+    "cacheProvider": "ehcache",
+    "creationTimestamp": 1760357556642,
+    "databaseType": "sql",
+    "devDatabaseType": "h2Disk",
+    "enableHibernateCache": true,
+    "enableTranslation": true,
+    "entities": [],
+    "feignClient": null,
+    "jhipsterVersion": "8.11.0",
+    "jwtSecretKey": "ZGE4ZTNlMzg0MTNlZjlmYjIyNjlmNWVmNmNmZjJlNjVmZjgxZTMxMmExNzM3MmI5YzRiMmEwYmEzYWNiNzMxZDFmODk1YTYzZTEyMDI0MTI3MDViZDE4ODA1Zjk0NTNlMWQ0ZmQxZTQzMDBmMGZiMzA1NjA4NTVlZjU3OTNlZDc=",
+    "languages": ["pl"],
+    "nativeLanguage": "pl",
+    "packageName": "com.mycompany.myapp",
+    "prodDatabaseType": "oracle",
+    "reactive": false,
+    "serverPort": null,
+    "serviceDiscoveryType": null,
+    "skipClient": true,
+    "syncUserWithIdp": null,
+    "testFrameworks": []
+  }
+}
