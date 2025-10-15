@@ -8,19 +8,17 @@ node {
     stage('build') {
         sh "chmod +x mvnw"
         sh "./mvnw -ntp package -P-webapp -DskipTests"
-        archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
     }
 
-    stage('run') {
-        // Znajdź plik JAR
-        def jarFile = sh(script: "find \$(pwd) -name '*.jar' | grep -v original | head -1", returnStdout: true).trim()
-
-        // Zatrzymaj poprzednią instancję jeśli działa
-        sh "pkill -f java || true"
-
-        // Uruchom aplikację
-        sh "nohup java -jar ${jarFile} --spring.profiles.active=dev > app.log 2>&1 &"
-
-        echo "Aplikacja uruchomiona. Logi dostępne w pliku app.log"
+    stage('build docker image') {
+        try {
+            sh "./mvnw -ntp -Pprod jib:dockerBuild -DskipTests"
+            sh "docker images | grep stefikback"
+            echo "Obraz Docker został zbudowany. Możesz go uruchomić komendą: docker run -p 8081:8080 stefikback:latest"
+        } catch (Exception e) {
+            echo "Błąd podczas budowania obrazu Docker. Możliwy brak dostępu do demona Docker."
+            echo "Możesz uruchomić aplikację bezpośrednio: java -jar target/*.jar"
+            throw e
+        }
     }
 }
