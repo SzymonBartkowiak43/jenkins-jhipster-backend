@@ -24,8 +24,8 @@ node {
     }
 
     stage('deploy and run') {
-        // Znajdź JAR
-        def jarFile = findFiles(glob: 'target/*.jar')[0].path
+        // Znajdź JAR używając polecenia shell zamiast findFiles
+        def jarFile = sh(script: "find target -name '*.jar' | grep -v original", returnStdout: true).trim()
 
         // Zatrzymaj istniejącą aplikację (jeśli działa)
         sh "pkill -f '${jarFile}' || true"
