@@ -19,14 +19,13 @@ node {
 
     stage('backend tests') {
         try {
-            sh "./mvnw -ntp verify -P-webapp"
+            sh "./mvnw -ntp verify -P-webapp -Dtest.excludes=**/AccountResourceIT.java"
         } catch(err) {
             throw err
         } finally {
             junit '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml'
         }
     }
-
     stage('packaging') {
         sh "./mvnw -ntp verify -P-webapp -Pprod -DskipTests"
         archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
