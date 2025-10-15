@@ -21,12 +21,12 @@ node {
     }
 
     stage('deploy and run') {
-        def jarFile = sh(script: "find target -name '*.jar' | grep -v original", returnStdout: true).trim()
+        def jarFile = sh(script: "find \$(pwd) -name '*.jar' | grep -v original | head -1", returnStdout: true).trim()
 
         sh "pkill -f '${jarFile}' || true"
 
-        // Uruchom z aktywnym profilem dev i z bazą H2
-        sh "nohup java -jar ${jarFile} --spring.profiles.active=dev --spring.datasource.url=jdbc:h2:mem:stefikback --spring.datasource.username=sa --spring.datasource.password= --spring.jpa.database-platform=org.hibernate.dialect.H2Dialect --server.port=8081 > app.log 2>&1 &"
+        // Dodaj parametr server.address=0.0.0.0 aby nasłuchiwać na wszystkich interfejsach
+        sh "nohup java -jar ${jarFile} --spring.profiles.active=dev --server.address=0.0.0.0 --server.port=8081 --spring.datasource.url=jdbc:h2:mem:stefikback --spring.datasource.username=sa --spring.datasource.password= --spring.jpa.database-platform=org.hibernate.dialect.H2Dialect > app.log 2>&1 &"
 
         sh "sleep 30"
     }
