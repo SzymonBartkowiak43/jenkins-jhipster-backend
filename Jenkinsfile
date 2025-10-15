@@ -50,7 +50,7 @@ node {
         sh "docker rm jhipster-app || true"
 
         // Uruchom aplikację w kontenerze Docker
-        sh "docker run --name jhipster-app -d -p 8080:8080 ${dockerImage}"
+        sh "docker run --name jhipster-app -d -p 8081:8080 ${dockerImage}"
 
         // Poczekaj chwilę na uruchomienie aplikacji
         sh "sleep 30"
@@ -62,7 +62,7 @@ node {
             sh "curl -s http://localhost:8080/management/health | grep UP || (docker logs jhipster-app && exit 1)"
 
             // Wyświetl URL, pod którym można zobaczyć aplikację
-            echo "Aplikacja jest dostępna pod adresem: http://localhost:8080"
+            echo "Aplikacja jest dostępna pod adresem: http://localhost:8081"
 
             // Wyświetl logi kontenera
             sh "docker logs jhipster-app"
