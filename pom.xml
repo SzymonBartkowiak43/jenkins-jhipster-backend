@@ -276,6 +276,11 @@
             <artifactId>testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
+      <dependency>
+        <groupId>com.oracle.database.jdbc</groupId>
+        <artifactId>ojdbc8</artifactId>
+        <version>21.9.0.0</version>
+      </dependency>
     </dependencies>
 
     <build>
