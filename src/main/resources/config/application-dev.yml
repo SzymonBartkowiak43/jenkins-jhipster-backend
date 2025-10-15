@@ -15,10 +15,10 @@
 
 logging:
   level:
-    ROOT: DEBUG
-    tech.jhipster: DEBUG
-    org.hibernate.SQL: DEBUG
-    com.mycompany.myapp: DEBUG
+    ROOT: INFO
+    tech.jhipster: INFO
+    org.hibernate.SQL: INFO
+    com.mycompany.myapp: INFO
 
 spring:
   devtools:
@@ -56,7 +56,7 @@ spring:
     cache: false
 
 server:
-  port: 8080
+  port: 8090
   # make sure requests the proxy uri instead of the server one
   forward-headers-strategy: native
 

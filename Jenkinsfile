@@ -13,24 +13,27 @@ node {
         sh "chmod +x mvnw"
         sh "./mvnw -ntp clean -P-webapp"
     }
+
     stage('nohttp') {
         sh "./mvnw -ntp checkstyle:check"
     }
 
     stage('backend build') {
-        // Skip all tests due to widespread context loading issues
+        // Pomijamy testy z powodu problemów z ładowaniem kontekstu
         sh "./mvnw -ntp verify -P-webapp -DskipTests"
     }
 
     stage('packaging') {
-        sh "./mvnw -ntp verify -P-webapp -Pprod -DskipTests"
+        // Używamy profilu dev zamiast prod
+        sh "./mvnw -ntp verify -P-webapp -Pdev -DskipTests"
         archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
     }
 
-    def dockerImage
-    stage('publish docker') {
-        // A pre-requisite to this step is to setup authentication to the docker registry
-        // https://github.com/GoogleContainerTools/jib/tree/master/jib-maven-plugin#authentication-methods
-        sh "./mvnw -ntp -Pprod verify jib:build -DskipTests"
+    stage('build docker image') {
+        // Budujemy lokalny obraz Docker bez wypychania do rejestru
+        sh "./mvnw -ntp -Pdev jib:dockerBuild -DskipTests"
+
+        // Opcjonalnie wyświetlamy listę obrazów
+        sh "docker images | grep stefikback"
     }
 }
