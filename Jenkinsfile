@@ -20,46 +20,39 @@ node {
         archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
     }
 
-    stage('build docker image') {
-        // Użyjmy tego samego profilu dev dla spójności
-        sh "./mvnw package -P-webapp -Pdev -DskipTests jib:dockerBuild"
-        sh "docker images | grep stefikback"
-    }
+    stage('deploy and run') {
+        def jarFile = sh(script: "find \$(pwd) -name '*.jar' | grep -v original | head -1", returnStdout: true).trim()
 
-    stage('run docker container') {
-        sh "docker stop stefikback || true"
-        sh "docker rm stefikback || true"
+        // Zatrzymaj istniejącą aplikację (jeśli działa)
+        sh "pkill -f '${jarFile}' || true"
 
-        // Dodajmy zmienne środowiskowe dla konfiguracji aplikacji
+        // Uruchom aplikację bezpośrednio
         sh """
-        docker run -d --name stefikback \
-          -p 8081:8080 \
-          -e SPRING_PROFILES_ACTIVE=dev \
-          -e MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE='*' \
-          -e MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=always \
-          stefikback:latest
+        nohup java -jar ${jarFile} \
+        --spring.profiles.active=dev \
+        --server.address=0.0.0.0 \
+        --server.port=8081 \
+        --spring.datasource.url=jdbc:h2:mem:stefikback \
+        --spring.datasource.username=sa \
+        --spring.datasource.password= \
+        > app.log 2>&1 &
         """
 
-        // Krótkie oczekiwanie na uruchomienie
-        sh "sleep 10"
+        sh "sleep 30"
+        sh "cat app.log | tail -n 50 || echo 'Log file not found'"
+    }
 
-        // Sprawdź logi, ale bez blokowania pipeline'a
-        sh "docker logs stefikback || true"
-        sh "sleep 20"  // Daj więcej czasu na pełne uruchomienie
+    stage('check application status') {
+        sh "ps aux | grep java || echo 'No Java process found'"
+        sh "netstat -tulpn | grep 8081 || echo 'No process listening on port 8081'"
     }
 
     stage('verify') {
         try {
-            // Sprawdź health endpoint
-            sh "curl -v http://localhost:8081/management/health || curl -v http://localhost:8081/actuator/health"
-
-            echo "Aplikacja jest dostępna pod adresem: http://localhost:8081"
-
-            // Pokaż logi z kontenera
-            sh "docker logs stefikback | tail -n 50"
+            sh "curl -v http://localhost:8081/actuator/health || curl -v http://localhost:8081/management/health || echo 'Failed to connect to health endpoint'"
+            echo "Aplikacja powinna być dostępna pod adresem: http://localhost:8081"
         } catch(err) {
             echo "Weryfikacja nie powiodła się: ${err}"
-            sh "docker logs stefikback"
             throw err
         }
     }
